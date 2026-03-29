@@ -2,18 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict, Field
-
 from domain.enums import FailureType
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AgentSchema(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-        validate_assignment=True,
-        arbitrary_types_allowed=False,
-        use_enum_values=False,
-    )
+    model_config = ConfigDict(extra="forbid", validate_assignment=True, arbitrary_types_allowed=False, use_enum_values=False)
 
 
 class FailureClassificationInputSchema(AgentSchema):
@@ -49,7 +43,8 @@ class FileChangePlanSchema(AgentSchema):
     file_path: Path
     reason: str = Field(..., min_length=1)
     change_type: str = Field(..., min_length=1)
-    target_symbol: str | None = None
+    target_symbol: str | None = (None,)
+    original_content: str = Field(..., min_length=1)
 
 
 class FixPlanningOutputSchema(AgentSchema):

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from ai_bug_analyzer.app.state import BugAnalyzerState
-from ai_bug_analyzer.domain.enums import RunStatus
-from ai_bug_analyzer.tools.command_tools import CommandExecutionRequest, execute_command
+from app.state import BugAnalyzerState
+from domain.enums import RunStatus
+from tools.command_tools import CommandExecutionRequest, execute_command
 
 
 def run_target_node(state: BugAnalyzerState) -> dict:
@@ -10,7 +10,7 @@ def run_target_node(state: BugAnalyzerState) -> dict:
 
     if not command:
         raise ValueError("No command was provided. Expected test_command or entry_command.")
-    
+
     request = CommandExecutionRequest(command=command, working_directory=state.project_path)
     run_result = execute_command(request)
 

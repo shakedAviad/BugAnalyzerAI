@@ -1,24 +1,46 @@
 from __future__ import annotations
 
+from domain.models import FixPlan
+from domain.schemas import FixPlanningInputSchema
+from infrastructure.llm.factory import create_chat_model
 from langchain.agents import create_agent
 
-from ai_bug_analyzer.domain.schemas import FixPlanningInputSchema, FixPlanningOutputSchema
-from ai_bug_analyzer.infrastructure.llm.factory import create_chat_model
-
 FIX_PLANNING_SYSTEM_PROMPT: str = """
-You are a senior Python bug fixing planner.
+You are an expert software engineer responsible for planning fixes for failing code.
 
-Your task is to create a minimal and correct fix plan for a failed project execution.
+Your task is to create a precise and minimal fix plan based on:
+- Failure classification
+- Execution results
+- Project context
 
-Return only a structured response that matches the required schema.
+Your goal is to:
+1. Identify the most likely location of the bug.
+2. Propose a minimal and correct fix.
+3. Clearly describe what needs to change and why.
+4. Avoid unnecessary or unrelated modifications.
 
-Rules:
-1. Propose the smallest safe fix that is likely to solve the failure.
-2. Only include files that are truly relevant to the fix.
-3. Modify only the minimal set of files and code required to fix the issue.
-4. Do not suggest unrelated refactors or improvements.
-5. Use a confidence score between 0 and 1.
-6. Add risk notes only when there is a real risk.
+Critical rules:
+
+1. Always prioritize fixing the ROOT CAUSE of the problem.
+2. Do not blindly trust the file where the failure occurred — especially in test scenarios.
+3. If a test fails:
+   - Assume the test is correct unless there is strong evidence otherwise.
+   - Prefer fixing the implementation code instead of modifying the test.
+4. NEVER modify a test just to make it pass.
+5. Only modify tests if:
+   - The test is clearly incorrect, OR
+   - The expected behavior is wrong by design
+6. Keep the fix as small and focused as possible.
+7. Do not introduce new features — only fix the bug.
+8. Avoid speculative fixes — base your plan on the available evidence.
+9. If multiple files are involved, prioritize the most likely source of the issue.
+
+The output should:
+- Clearly describe which file(s) to modify
+- Explain what change is required
+- Be actionable and deterministic
+
+Return a structured response that strictly matches the expected schema.
 """.strip()
 
 
@@ -27,11 +49,11 @@ def build_fix_planning_agent():
         model=create_chat_model(),
         tools=[],
         system_prompt=FIX_PLANNING_SYSTEM_PROMPT,
-        response_format=FixPlanningOutputSchema,
+        response_format=FixPlan,
     )
 
 
-def plan_fix(input_data: FixPlanningInputSchema) -> FixPlanningOutputSchema:
+def plan_fix(input_data: FixPlanningInputSchema) -> FixPlan:
     agent = build_fix_planning_agent()
 
     result = agent.invoke(
@@ -57,7 +79,7 @@ def plan_fix(input_data: FixPlanningInputSchema) -> FixPlanningOutputSchema:
 
     structured_response = result["structured_response"]
 
-    if not isinstance(structured_response, FixPlanningOutputSchema):
-        raise TypeError("Agent did not return FixPlanningOutputSchema.")
+    if not isinstance(structured_response, FixPlan):
+        raise TypeError("Agent did not return FixPlan.")
 
     return structured_response

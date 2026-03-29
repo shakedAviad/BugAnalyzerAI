@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from ai_bug_analyzer.agents.failure_classification_agent import classify_failure
-from ai_bug_analyzer.app.state import BugAnalyzerState
-from ai_bug_analyzer.domain.schemas import FailureClassificationInputSchema
+from agents.failure_classification_agent import classify_failure
+from app.state import BugAnalyzerState
+from domain.schemas import FailureClassificationInputSchema
 
 
 def classify_failure_node(state: BugAnalyzerState) -> dict:
@@ -22,6 +22,4 @@ def classify_failure_node(state: BugAnalyzerState) -> dict:
         stderr=last_run_result.stderr,
     )
 
-    failure_classification = classify_failure(schema)
-
-    return {"failure_classification": failure_classification}
+    return {"failure_classification": classify_failure(schema)}

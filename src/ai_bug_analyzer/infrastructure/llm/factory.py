@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import os
 
-from langchain_openai import (
-    ChatOpenAI,
-)
+from langchain_openai import ChatOpenAI
 
 DEFAULT_MODEL: str = "gpt-4.1-mini"
 

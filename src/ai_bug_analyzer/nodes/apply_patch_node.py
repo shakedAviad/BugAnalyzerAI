@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ai_bug_analyzer.app.state import BugAnalyzerState
-from ai_bug_analyzer.domain.models import PatchApplicationResult
-from ai_bug_analyzer.tools.patch_tools import ReplaceFileContentRequest, replace_file_content
+from app.state import BugAnalyzerState
+from domain.models import PatchApplicationResult
+from tools.patch_tools import ReplaceFileContentRequest, replace_file_content
 
 
 def apply_patch_node(state: BugAnalyzerState) -> dict:
@@ -20,7 +20,9 @@ def apply_patch_node(state: BugAnalyzerState) -> dict:
         try:
             replace_file_content(
                 ReplaceFileContentRequest(
-                    project_root=state.project_path, file_path=operation.file_path, new_content=operation.patch_text
+                    project_root=state.project_path,
+                    file_path=operation.file_path,
+                    new_content=operation.patch_text,
                 )
             )
             applied_files.append(operation.file_path)
@@ -31,10 +33,13 @@ def apply_patch_node(state: BugAnalyzerState) -> dict:
         applied=len(failed_files) == 0,
         applied_files=applied_files,
         failed_files=failed_files,
-        details=("Patch applied successfully." if not failed_files else "Patch was applied partially."),
+        details="Patch applied successfully." if not failed_files else "Patch was applied partially.",
     )
 
     updated_changed_files: list[Path] = list(state.changed_files)
     updated_changed_files.extend(file_path for file_path in applied_files if file_path not in updated_changed_files)
 
-    return {"patch_application_result": patch_application_result, "changed_files": updated_changed_files}
+    return {
+        "patch_application_result": patch_application_result,
+        "changed_files": updated_changed_files,
+    }

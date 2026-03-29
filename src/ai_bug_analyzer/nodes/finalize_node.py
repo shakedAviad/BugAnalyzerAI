@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from ai_bug_analyzer.app.state import BugAnalyzerState
-from ai_bug_analyzer.domain.enums import FinalStatus
-from ai_bug_analyzer.domain.models import FinalOutcome
+from app.state import BugAnalyzerState
+from domain.enums import FinalStatus
+from domain.models import FinalOutcome
 
 
 def finalize_node(state: BugAnalyzerState) -> dict:

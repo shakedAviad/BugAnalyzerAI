@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from ai_bug_analyzer.app.state import BugAnalyzerState
-from ai_bug_analyzer.domain.enums import RunStatus
-from ai_bug_analyzer.domain.models import RepairAttempt
-from ai_bug_analyzer.tools.command_tools import CommandExecutionRequest, execute_command
+from app.state import BugAnalyzerState
+from domain.enums import RunStatus
+from domain.models import RepairAttempt
+from tools.command_tools import CommandExecutionRequest, execute_command
 
 
 def verify_result_node(state: BugAnalyzerState) -> dict:

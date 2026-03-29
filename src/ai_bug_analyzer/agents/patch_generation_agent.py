@@ -1,24 +1,25 @@
 from __future__ import annotations
 
+from domain.models import GeneratedPatch
+from domain.schemas import PatchGenerationInputSchema
+from infrastructure.llm.factory import create_chat_model
 from langchain.agents import create_agent
 
-from ai_bug_analyzer.domain.schemas import PatchGenerationInputSchema, PatchGenerationOutputSchema
-from ai_bug_analyzer.infrastructure.llm.factory import create_chat_model
-
 PATCH_GENERATION_SYSTEM_PROMPT: str = """
-You are a senior Python code patch generator.
+You are updating an existing Python file.
 
-Your task is to generate a minimal and precise code patch plan based on an approved fix plan.
+You will receive the current full file content and a fix plan.
 
-Return only a structured response that matches the required schema.
+Your task is to return the FULL UPDATED FILE CONTENT for each file.
 
-Rules:
-1. Generate only the code changes required to implement the fix plan.
-2. Do not modify unrelated files or unrelated parts of a file.
-3. Keep changes as small and focused as possible.
-4. Preserve the existing coding style unless the fix requires otherwise.
-5. Do not invent files unless they are clearly required for the fix.
-6. Each operation must target a specific file.
+Critical rules:
+1. Return the complete updated file content, not a diff.
+2. Do not return only the changed lines.
+3. Do not return only a function or a code snippet.
+4. Preserve all existing valid code unless it must be changed to fix the bug.
+5. Keep imports, function definitions, and unrelated logic intact.
+6. Apply only the minimal required fix.
+7. The returned file content must be a complete valid replacement for the original file.
 """.strip()
 
 
@@ -27,11 +28,11 @@ def build_patch_generation_agent():
         model=create_chat_model(),
         tools=[],
         system_prompt=PATCH_GENERATION_SYSTEM_PROMPT,
-        response_format=PatchGenerationOutputSchema,
+        response_format=GeneratedPatch,
     )
 
 
-def generate_patch(input_data: PatchGenerationInputSchema) -> PatchGenerationOutputSchema:
+def generate_patch(input_data: PatchGenerationInputSchema) -> GeneratedPatch:
     agent = build_patch_generation_agent()
 
     result = agent.invoke(
@@ -51,6 +52,7 @@ def generate_patch(input_data: PatchGenerationInputSchema) -> PatchGenerationOut
                                     f"Reason: {change.reason} | "
                                     f"Change type: {change.change_type} | "
                                     f"Target symbol: {change.target_symbol or 'None'}"
+                                    f"Original content: {change.original_content}"
                                 )
                                 for change in input_data.changes
                             ]
@@ -63,7 +65,7 @@ def generate_patch(input_data: PatchGenerationInputSchema) -> PatchGenerationOut
 
     structured_response = result["structured_response"]
 
-    if not isinstance(structured_response, PatchGenerationOutputSchema):
+    if not isinstance(structured_response, GeneratedPatch):
         raise TypeError("Agent did not return PatchGenerationOutputSchema.")
 
     return structured_response

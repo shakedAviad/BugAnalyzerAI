@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from ai_bug_analyzer.agents.fix_planning_agent import plan_fix
-from ai_bug_analyzer.app.state import BugAnalyzerState
-from ai_bug_analyzer.domain.schemas import FixPlanningInputSchema
+from agents.fix_planning_agent import plan_fix
+from app.state import BugAnalyzerState
+from domain.schemas import FixPlanningInputSchema
 
 
 def plan_fix_node(state: BugAnalyzerState) -> dict:
@@ -27,6 +27,4 @@ def plan_fix_node(state: BugAnalyzerState) -> dict:
         stderr=last_run_result.stderr,
     )
 
-    fix_plan = plan_fix(scheme)
-
-    return {"fix_plan": fix_plan}
+    return {"fix_plan": plan_fix(scheme)}

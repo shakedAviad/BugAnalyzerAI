@@ -3,17 +3,12 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
-from enums import FailureType, FinalStatus
+from domain.enums import FailureType, FinalStatus
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class DomainModel(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-        validate_assignment=True,
-        arbitrary_types_allowed=False,
-        use_enum_values=False,
-    )
+    model_config = ConfigDict(extra="forbid", validate_assignment=True, arbitrary_types_allowed=False, use_enum_values=False)
 
 
 class RunResult(DomainModel):
@@ -57,10 +52,16 @@ class PatchOperation(DomainModel):
     patch_text: str = Field(..., min_length=1)
 
 
+class GeneratedFilePatch(DomainModel):
+    file_path: str
+    new_content: str
+
+
 class GeneratedPatch(DomainModel):
     summary: str = Field(..., min_length=1)
     operations: list[PatchOperation] = Field(default_factory=list)
     estimated_changed_files_count: int = Field(..., ge=0)
+    files: list[GeneratedFilePatch] = Field(default_factory=list)
 
 
 class PatchApplicationResult(DomainModel):

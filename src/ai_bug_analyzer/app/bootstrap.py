@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from ai_bug_analyzer.app.config import AppConfig
-from ai_bug_analyzer.app.state import BugAnalyzerState
-from ai_bug_analyzer.infrastructure.logging.setup import configure_logging
+from app.config import AppConfig
+from app.state import BugAnalyzerState
+from infrastructure.logging.setup import configure_logging
 
 
 def bootstrap_application() -> BugAnalyzerState:

@@ -2,10 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import Field
-
-from ai_bug_analyzer.domain.enums import RunStatus
-from ai_bug_analyzer.domain.models import (
+from domain.enums import RunStatus
+from domain.models import (
     DomainModel,
     FailureClassification,
     FinalOutcome,
@@ -15,6 +13,7 @@ from ai_bug_analyzer.domain.models import (
     RepairAttempt,
     RunResult,
 )
+from pydantic import Field
 
 
 class BugAnalyzerState(DomainModel):
@@ -30,14 +29,10 @@ class BugAnalyzerState(DomainModel):
     failure_classification: FailureClassification | None = None  # detected failure type
     fix_plan: FixPlan | None = None  # planned fix strategy
     generated_patch: GeneratedPatch | None = None  # generated code patch
-    patch_application_result: PatchApplicationResult | None = (
-        None  # patch apply outcome
-    )
+    patch_application_result: PatchApplicationResult | None = None  # patch apply outcome
 
     changed_files: list[Path] = Field(default_factory=list)  # files modified so far
-    attempt_history: list[RepairAttempt] = Field(
-        default_factory=list
-    )  # history of attempts
+    attempt_history: list[RepairAttempt] = Field(default_factory=list)  # history of attempts
     final_outcome: FinalOutcome | None = None  # final result summary
 
     is_resolved: bool = False  # indicates success
