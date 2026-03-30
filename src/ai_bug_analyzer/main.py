@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 from app.bootstrap import bootstrap_application
 from app.graph import build_graph
 
@@ -13,7 +15,7 @@ def main() -> None:
         state,
         config={
             "configurable": {
-                "thread_id": "bug-analyzer-run-1",
+                "thread_id": str(uuid.uuid4()),
             },
         },
     )
